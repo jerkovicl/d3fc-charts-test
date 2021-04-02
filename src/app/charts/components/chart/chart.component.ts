@@ -15,9 +15,9 @@ export class ChartComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     const data = fc.randomFinancial()(50);
 
-    const yExtent = fc.extentLinear().accessors([(d) => d.high, (d) => d.low]);
+    const yExtent = fc.extentLinear().accessors([(d: { high: any; }) => d.high, (d: { low: any; }) => d.low]);
 
-    const xExtent = fc.extentDate().accessors([(d) => d.date]);
+    const xExtent = fc.extentDate().accessors([(d: { date: any; }) => d.date]);
 
     const gridlines = fc.annotationSvgGridline();
     const candlestick = fc.seriesSvgCandlestick();

@@ -13,3 +13,4 @@
 /* declare module 'd3fc' {
   export = d3fc;
 } */
+declare module 'd3fc';
