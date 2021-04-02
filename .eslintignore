@@ -1,0 +1,6 @@
+/src/typings.d.ts
+/src/test.ts
+/src/main.ts
+/src/polyfills.ts
+node_modules
+dist
