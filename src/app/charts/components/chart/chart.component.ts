@@ -1,3 +1,9 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import * as fc from 'd3fc';
@@ -103,7 +109,9 @@ export class ChartComponent implements OnInit, AfterViewInit {
         // The selection passed to decorate is the one which the component creates
         // within its internal data join, here we use the update selection to
         // apply a style to 'path' elements created by the bar series
-        selection.select('.bar > path').style('fill', (d) => (d.sales < data.targets[0].value ? 'inherit' : '#0c0'));
+        selection
+          .select('.bar > path')
+          .style('fill', (d: any) => (d.sales < data.targets[0].value ? 'inherit' : '#0c0'));
       }
     );
 
@@ -138,7 +146,7 @@ export class ChartComponent implements OnInit, AfterViewInit {
         select: (arg0: string) => { (): any; new (): any; text: { (arg0: (d: any) => string): void; new (): any } };
       }) => {
         selection.enter().select('g.left-handle').append('text').attr('x', 5).attr('y', -5);
-        selection.select('g.left-handle text').text((d) => d.name + ' - ' + valueFormatter(d.value) + 'M');
+        selection.select('g.left-handle text').text((d: any) => `${d.name} - ${valueFormatter(d.value)}M`);
       }
     );
     d3.select(this.chartContainer.nativeElement).datum(data).call(chart);
