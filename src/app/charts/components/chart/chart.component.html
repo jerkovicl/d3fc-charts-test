@@ -1,5 +1,12 @@
 <div class="chart-container">
-  <!-- <div id="chart" #chart style="height: 500px; width: 600px"></div> -->
-  <d3fc-canvas #chart style="height: 500px; width: 600px" use-device-pixel-ratio set-webgl-viewport></d3fc-canvas>
-  <app-streaming-chart></app-streaming-chart>
+  <plotly-plot
+    [data]="chartConfig.data"
+    [layout]="chartConfig.layout"
+    [config]="chartConfig.layout.interactiveConfig"
+    [useResizeHandler]="true"
+    [style]="{ position: 'relative', width: '100%', height: '100%' }"
+  >
+  </plotly-plot>
 </div>
+<button (click)="sendMessage()">Send Message</button>
+<p *ngIf="data$ | async as data">{{ data }}</p>
