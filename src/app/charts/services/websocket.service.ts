@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@angular/core';
+import { UntilDestroy } from '@ngneat/until-destroy';
 import { EMPTY, Observable, Subject, timer } from 'rxjs';
 import { catchError, delayWhen, retryWhen, switchAll, tap } from 'rxjs/operators';
 import { webSocket } from 'rxjs/webSocket';
@@ -13,6 +14,7 @@ import { environment } from 'src/environments/environment';
 export const WS_ENDPOINT: string = environment.wsEndpoint;
 export const RECONNECT_INTERVAL = environment.reconnectInterval;
 
+@UntilDestroy({ checkProperties: true })
 @Injectable({
   providedIn: 'root',
 })
@@ -32,9 +34,9 @@ export class WebsocketService {
    * Creates a new WebSocket subject and send it to the messages subject
    * @param cfg if true the observable will be retried.
    */
-  public connect(cfg: { reconnect: boolean } = { reconnect: false }): void {
+  public connect(cfg: { reconnect: boolean } = { reconnect: false }, deviceId: string): void {
     if (!this.socket$ || this.socket$.closed) {
-      this.socket$ = this.getNewWebSocket();
+      this.socket$ = this.getNewWebSocket(deviceId);
       console.log('connect', this.socket$);
       const messages = this.socket$.pipe(
         cfg.reconnect ? this.reconnect : (o: any) => o,
@@ -43,7 +45,7 @@ export class WebsocketService {
         }),
         catchError((_) => EMPTY)
       );
-      //TODO only next an observable if a new subscription was made double-check this
+      // only next an observable if a new subscription was made double-check this
       this.messagesSubject$.next(messages);
     }
   }
@@ -63,21 +65,21 @@ export class WebsocketService {
     );
   }
 
-  close() {
-    this.socket$.complete();
+  close(): void {
+    this.socket$?.complete();
     this.socket$ = undefined;
   }
 
-  sendMessage(msg: any) {
+  sendMessage(msg: any): void {
     this.socket$.next(msg);
   }
 
   /**
    * Return a custom WebSocket subject which reconnects after failure
    */
-  private getNewWebSocket() {
+  private getNewWebSocket(deviceId: string) {
     return webSocket({
-      url: WS_ENDPOINT,
+      url: `${WS_ENDPOINT}${deviceId}`,
       // serializer: (msg: any) => JSON.stringify({ data: 'x,y', msg: { ...msg } }),
       //  deserializer: ({data}) => data  }
       openObserver: {
@@ -89,7 +91,8 @@ export class WebsocketService {
         next: () => {
           console.log('[WebsocketService]: connection closed');
           this.socket$ = undefined;
-          this.connect({ reconnect: true });
+          // enable reconnect on closed connection
+          // this.connect({ reconnect: true }, deviceId);
         },
       },
     });

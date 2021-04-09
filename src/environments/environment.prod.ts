@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  wsEndpoint: 'ws://localhost:5000',
+  wsEndpoint: 'ws://mse1:8080/ws/listen/',
   reconnectInterval: 2000,
 };

@@ -1,13 +1,16 @@
 {
-  "name": "d3fc-charts-test",
+  "name": "charts-test",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "npm run build -- --prod --aot",
+    "serve:prod": "npm run start --prod",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "docker:prod": "docker-compose up --build -d charts-test"
   },
   "private": true,
   "dependencies": {
@@ -21,6 +24,7 @@
     "@angular/platform-browser": "~11.2.8",
     "@angular/platform-browser-dynamic": "~11.2.8",
     "@angular/router": "~11.2.8",
+    "@ngneat/until-destroy": "^8.0.4",
     "angular-plotly.js": "^3.1.0",
     "d3": "^6.6.2",
     "d3fc": "^15.1.2",

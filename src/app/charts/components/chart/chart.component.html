@@ -1,5 +1,6 @@
 <div class="chart-container">
   <plotly-plot
+    #chart
     [data]="chartConfig.data"
     [layout]="chartConfig.layout"
     [config]="chartConfig.layout.interactiveConfig"
@@ -8,5 +9,10 @@
   >
   </plotly-plot>
 </div>
-<button (click)="sendMessage()">Send Message</button>
+<input type="text" [formControl]="deviceId" />
+<button (click)="connect()">Connect</button>
+<button (click)="close()">Close</button>
+<!-- <button (click)="addMaxChart()">Add Chart</button>
+<button (click)="removeChart()">Remove Chart</button> -->
+
 <p *ngIf="data$ | async as data">{{ data }}</p>

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "d3fc-charts-test": {
+    "charts-test": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/d3fc-charts-test",
+            "outputPath": "dist/charts-test",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -70,18 +70,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "d3fc-charts-test:build"
+            "browserTarget": "charts-test:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "d3fc-charts-test:build:production"
+              "browserTarget": "charts-test:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "d3fc-charts-test:build"
+            "browserTarget": "charts-test:build"
           }
         },
         "test": {
@@ -114,18 +114,18 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "d3fc-charts-test:serve"
+            "devServerTarget": "charts-test:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "d3fc-charts-test:serve:production"
+              "devServerTarget": "charts-test:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "d3fc-charts-test",
+  "defaultProject": "charts-test",
   "cli": {
     "defaultCollection": "@angular-eslint/schematics"
   }
