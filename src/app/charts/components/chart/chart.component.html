@@ -5,6 +5,8 @@
     [layout]="chartConfig.layout"
     [config]="chartConfig.layout.interactiveConfig"
     [useResizeHandler]="true"
+    [updateOnlyWithRevision]="false"
+    [revision]="revision"
     [style]="{ position: 'relative', width: '100%', height: '100%' }"
   >
   </plotly-plot>
@@ -15,4 +17,4 @@
 <!-- <button (click)="addMaxChart()">Add Chart</button>
 <button (click)="removeChart()">Remove Chart</button> -->
 
-<p *ngIf="data$ | async as data">{{ data }}</p>
+<p *ngIf="data$ | async as data" hidden>{{ data | json }}</p>
