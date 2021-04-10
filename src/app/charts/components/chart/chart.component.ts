@@ -11,7 +11,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { PlotlyComponent, PlotlyService } from 'angular-plotly.js';
 import { catchError, map, tap } from 'rxjs/operators';
 import { WebsocketService } from '../../services/websocket.service';
-import { IChartConfig } from './chart-config.model';
+import { IChart } from './chart.model';
 import { IMeasurement } from './measurement.model';
 
 @UntilDestroy({ checkProperties: true })
@@ -22,10 +22,12 @@ import { IMeasurement } from './measurement.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChartComponent implements OnInit, AfterViewInit {
-  @ViewChild('chart')
+  @ViewChild('chartDiv')
   chartComponent!: PlotlyComponent;
 
   public deviceId = new FormControl('fes01:Sat-01');
+  public x: any[] = [];
+  public y: any[] = [];
   public data$: any = this.websocketService.messages$.pipe(
     map((data: any) => data),
     catchError((error) => {
@@ -38,10 +40,9 @@ export class ChartComponent implements OnInit, AfterViewInit {
   );
   public revision = 0;
 
-  public chartConfig: IChartConfig = {
+  public chart: IChart = {
     data: [
       {
-        // x: this.seedData().map((item: any) => item.x),
         y: [0],
         type: 'scattergl',
         mode: 'lines',
@@ -698,7 +699,7 @@ export class ChartComponent implements OnInit, AfterViewInit {
     this.data$.pipe(untilDestroyed(this)).subscribe(
       (response: IMeasurement) => {
         console.log('RESPONSE --> ', response);
-        this.chartConfig.data = [
+        this.chart.data = [
           {
             // x: this.seedData().map((item: any) => item.x),
             y: response.PSD_MEAS,
@@ -724,26 +725,35 @@ export class ChartComponent implements OnInit, AfterViewInit {
         [0]
       );
     }); */
-
-    /*   this.chartConfig.data = [
-      {
-        // x: this.seedData().map((item: any) => item.x),
-        y: this.testData,
+    this.chart.data  =  [
+        {
+          y: this.testData,
+          type: 'scattergl',
+        mode: 'lines',
+        line: {
+          // color: 'rgb(55, 128, 191)',
+          width: 1,
+        },
         hoverinfo: 'none',
-      },
-    ]; */
-    const update = {
+        },
+      ]
+ 
+   /*   const update = {
       // x: this.seedData().map((item: any) => item.x),
       data: this.testData,
       // hoverinfo: 'none',
     };
     const layout_update = {
       title: 'some new title', // updates the title
-    };
-    plotly.update(chart, update, layout_update);
-    this.revision += 1;
-    // plotly.relayout(chart, update);
+    };*/
+    // plotly.update(chart, update, layout_update);
+    // this.revision += 1; 
+   //  plotly.relayout(chart, update);
     // this.changeDetectorRef.detectChanges();
+    // this.chart.data[0]['y'].push(this.testData);
+    // this.y.push(this.testData);
+    // this.chart.data = [{ x: this.x.slice(), y: this.y.slice(), type: 'scattergl' }];
+    // this.chart.data[0].y = this.testData;
   }
 
   close(): void {
@@ -755,7 +765,19 @@ export class ChartComponent implements OnInit, AfterViewInit {
     const plotly = this.plotlyService.getPlotly();
     const chart = this.chartComponent.plotEl.nativeElement;
     plotly.addTraces(chart, {
-      y: this.seedData().map((item: any) => item.x),
+      y: this.testData.slice(100),
+      type: 'scattergl',
+      mode: 'lines',
+      hoverinfo: 'none',
+    });
+    // this.plotly.getPlotly().relayout(this.chartContainer.plotEl.nativeElement, updatedData);
+  }
+
+  public addMinChart(): void {
+    const plotly = this.plotlyService.getPlotly();
+    const chart = this.chartComponent.plotEl.nativeElement;
+    plotly.addTraces(chart, {
+      y: this.testData.slice(50),
       type: 'scattergl',
       mode: 'lines',
       hoverinfo: 'none',
