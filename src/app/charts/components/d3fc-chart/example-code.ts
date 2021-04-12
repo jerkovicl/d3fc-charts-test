@@ -129,3 +129,41 @@ annotation.decorate(
   }
 );
  */
+
+/*   this.testData.forEach((element) => {
+      plotly.extendTraces(
+        chart,
+        {
+          y: [[element]],
+        },
+        [0]
+      );
+    }); */
+/*   this.chart.data = [
+      {
+        y: this.testData,
+        type: 'scattergl',
+        mode: 'lines',
+        line: {
+          // color: 'rgb(55, 128, 191)',
+          width: 1,
+        },
+        hoverinfo: 'none',
+      },
+    ]; */
+
+/*   const update = {
+      data: this.testData,
+      // hoverinfo: 'none',
+    };
+    const layout_update = {
+      title: 'some new title', // updates the title
+    };*/
+// plotly.update(chart, update, layout_update);
+// this.revision += 1;
+//  plotly.relayout(chart, update);
+// this.changeDetectorRef.detectChanges();
+// this.chart.data[0]['y'].push(this.testData);
+// this.y.push(this.testData);
+// this.chart.data = [{ x: this.x.slice(), y: this.y.slice(), type: 'scattergl' }];
+// this.chart.data[0].y = this.testData;
