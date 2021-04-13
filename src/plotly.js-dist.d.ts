@@ -1,4 +1,4 @@
 // plotly.js-dist
-declare module 'plotly.js/dist/plotly.js' {
+declare module 'plotly.js-dist' {
   export * from 'plotly.js';
 }

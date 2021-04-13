@@ -82,6 +82,11 @@ export class ChartComponent implements OnInit, AfterViewInit {
     const chart = this.chartComponent.plotEl.nativeElement;
     console.log('plotly chart element', chart, this.chartComponent, plotly);
     // this.websocketService.connect();
+
+    // setInterval(() => {
+
+    // this.changeDetectorRef.detectChanges();
+    //  }, 15);
   }
 
   sendMessage(): void {
@@ -94,6 +99,9 @@ export class ChartComponent implements OnInit, AfterViewInit {
     this.websocketService.connect({ reconnect: false }, this.deviceId.value);
     const plotly = this.plotlyService.getPlotly();
     const chart = this.chartComponent.plotEl.nativeElement;
+
+    this.simulateRealtime();
+
     this.data$.pipe(untilDestroyed(this)).subscribe(
       (response: IMeasurement) => {
         console.log('RESPONSE --> ', response);
@@ -183,5 +191,51 @@ export class ChartComponent implements OnInit, AfterViewInit {
 
   private randomNumberBounds(min: number, max: number) {
     return Math.floor(Math.random() * max) + min;
+  }
+
+  private negativeRandomNumber(m: number, n: number) {
+    return Math.floor(Math.random() * (n - m + 1)) + m;
+  }
+
+  private generateNegativeRandomNumbersArray() {
+    const arrayLength = 600;
+    const newArray = [];
+
+    for (let i = 0; i < arrayLength; i++) {
+      const y = this.negativeRandomNumber(-100, -50);
+      newArray[i] = y;
+    }
+    return newArray;
+  }
+
+  public simulateRealtime(): void {
+    const plotly = this.plotlyService.getPlotly();
+    const chart = this.chartComponent.plotEl.nativeElement;
+    setInterval(() => {
+      const array = this.generateNegativeRandomNumbersArray();
+      console.log('array', array);
+      plotly.extendTraces(
+        chart,
+        {
+          y: [array],
+        },
+        [0],
+        600
+      );
+      this.chart.data = [
+        {
+          y: this.chart.data[0].y,
+          // y: this.chartData[0].data.PSD_MEAS,
+          type: 'scattergl',
+          mode: 'lines',
+          line: {
+            // color: 'rgb(55, 128, 191)',
+            width: 1,
+          },
+          hoverinfo: 'none',
+        },
+      ];
+      this.changeDetectorRef.detectChanges();
+    }, 200);
   }
 }
