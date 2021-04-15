@@ -1,4 +1,4 @@
-<div class="chart-container">
+<!-- <div class="chart-container">
   <plotly-plot
     #chartDiv
     [data]="chart.data"
@@ -8,12 +8,12 @@
     [style]="{ position: 'relative', width: '100%', height: '100%' }"
   >
   </plotly-plot>
-</div>
+</div> -->
 <input type="text" [formControl]="deviceId" />
 <button (click)="connect()">Connect</button>
 <button (click)="close()">Close</button>
-<button (click)="addMaxChart()">Add Max</button>
-<button (click)="addMinChart()">Add Min</button>
+<!-- <button (click)="addMaxChart()">Add Max</button>
+<button (click)="addMinChart()">Add Min</button> -->
 <!--<button (click)="removeChart()">Remove Chart</button> -->
 
-<!-- <p *ngIf="data$ | async as data" hidden>{{ data | json }}</p> -->
+<app-pure-chart></app-pure-chart>

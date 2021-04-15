@@ -82,11 +82,6 @@ export class ChartComponent implements OnInit, AfterViewInit {
     const chart = this.chartComponent.plotEl.nativeElement;
     console.log('plotly chart element', chart, this.chartComponent, plotly);
     // this.websocketService.connect();
-
-    // setInterval(() => {
-
-    // this.changeDetectorRef.detectChanges();
-    //  }, 15);
   }
 
   sendMessage(): void {
@@ -104,18 +99,40 @@ export class ChartComponent implements OnInit, AfterViewInit {
 
     this.data$.pipe(untilDestroyed(this)).subscribe(
       (response: IMeasurement) => {
-        console.log('RESPONSE --> ', response);
-        this.chartData.push(response);
-        console.log('CHART DATA --> ', this.chartData);
-        if (this.chartData[35]) {
+        // console.log('RESPONSE --> ', response);
+
+        if (response) {
           this.chart.data = [
             {
-              y: this.chartData[35].data.PSD_MEAS,
+              y: response?.PSD_MEAS,
               // y: this.chartData[0].data.PSD_MEAS,
               type: 'scattergl',
+              name: 'PSD',
               mode: 'lines',
               line: {
                 // color: 'rgb(55, 128, 191)',
+                width: 1,
+              },
+              hoverinfo: 'none',
+            },
+            {
+              y: response?.MAX_MEAS,
+              type: 'scattergl',
+              name: 'Max',
+              mode: 'lines',
+              line: {
+                color: 'green',
+                width: 1,
+              },
+              hoverinfo: 'none',
+            },
+            {
+              y: response?.MIN_MEAS,
+              type: 'scattergl',
+              name: 'Min',
+              mode: 'lines',
+              line: {
+                color: 'red',
                 width: 1,
               },
               hoverinfo: 'none',
@@ -202,7 +219,7 @@ export class ChartComponent implements OnInit, AfterViewInit {
     const newArray = [];
 
     for (let i = 0; i < arrayLength; i++) {
-      const y = this.negativeRandomNumber(-100, -50);
+      const y = this.negativeRandomNumber(-90, -70);
       newArray[i] = y;
     }
     return newArray;
@@ -213,19 +230,20 @@ export class ChartComponent implements OnInit, AfterViewInit {
     const chart = this.chartComponent.plotEl.nativeElement;
     setInterval(() => {
       const array = this.generateNegativeRandomNumbersArray();
-      console.log('array', array);
-      plotly.extendTraces(
+      // console.log('array', array);
+      /*   plotly.extendTraces(
         chart,
         {
           y: [array],
         },
         [0],
         600
-      );
+      ); */
       this.chart.data = [
         {
-          y: this.chart.data[0].y,
+          // y: this.chart.data[0].y,
           // y: this.chartData[0].data.PSD_MEAS,
+          y: array,
           type: 'scattergl',
           mode: 'lines',
           line: {

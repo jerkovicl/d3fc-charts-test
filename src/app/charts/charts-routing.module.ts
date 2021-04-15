@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ChartsComponent } from './charts.component';
-import { ChartComponent } from './components/chart/chart.component';
+import { PureChartComponent } from './components/pure-chart/pure-chart.component';
 
 const routes: Routes = [
   {
@@ -10,7 +10,7 @@ const routes: Routes = [
     children: [
       {
         path: 'chart',
-        component: ChartComponent,
+        component: PureChartComponent,
       },
       {
         path: '',

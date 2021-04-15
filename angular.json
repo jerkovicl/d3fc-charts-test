@@ -34,7 +34,7 @@
               "src/styles.scss"
             ],
             "scripts": [
-              //    "node_modules/plotly.js/dist/plotly.js"
+              //   "node_modules/plotly.js-dist/plotly.js"
             ]
           },
           "configurations": {
