@@ -10,6 +10,7 @@
       },
       "extends": [
         "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/recommended--extra",
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
@@ -51,8 +52,12 @@
       "excludedFiles": ["*inline-template-*.component.html"],
       "extends": ["plugin:prettier/recommended"],
       "rules": {
-        // NOTE: WE ARE OVERRIDING THE DEFAULT CONFIG TO ALWAYS SET THE PARSER TO ANGULAR (SEE BELOW)
-        "prettier/prettier": ["error", { "parser": "angular" }]
+        "prettier/prettier": [
+          "error",
+          {
+            "parser": "angular"
+          }
+        ]
       }
     }
   ]

@@ -1,47 +1,91 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @angular-eslint/no-empty-lifecycle-method */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import Plotly, { Data } from 'plotly.js-dist';
-import { IChart } from '../chart/chart.model';
+import { AfterViewInit, ChangeDetectionStrategy, Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import Plotly from 'plotly.js-dist';
+import { catchError, map, tap } from 'rxjs/operators';
+import { ISimplifyObjectPoint, Simplify } from 'simplify-ts';
+import { WebsocketService } from '../../services/websocket.service';
+import { IMeasurement } from '../chart/measurement.model';
 
+@UntilDestroy({ checkProperties: true })
 @Component({
   selector: 'app-pure-chart',
   templateUrl: './pure-chart.component.html',
   styleUrls: ['./pure-chart.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PureChartComponent implements OnInit, AfterViewInit {
+export class PureChartComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartEl')
   chartEl!: any;
+  public deviceId = new FormControl('fes01:Sat-01');
 
-  public chartConfig: IChart = {
-    data: [
-      {
-        x: [0],
-        y: [0],
-        type: 'scattergl',
-        mode: 'lines',
-        line: {
-          // color: 'rgb(55, 128, 191)',
-          width: 1,
-        },
-        hoverinfo: 'none',
-      },
-    ],
-    layout: {
-      autosize: true,
-      showlegend: true,
-      title: 'SkymonNG',
-      interactiveConfig: { displayModeBar: false, displaylogo: false },
-      xaxis: { zeroline: true, showline: true, rangemode: 'tozero', range: [0, 610] },
-      yaxis: { range: [-100, -50] },
+  public layout: Partial<Plotly.Layout> = {
+    autosize: false,
+    showlegend: false,
+    title: 'SkymonNG',
+    xaxis: {
+      zeroline: true,
+      showline: true,
+      showgrid: false,
+      range: [0, 610],
+      tickmode: 'linear',
+      tick0: 0,
+      dtick: 50,
     },
+    yaxis: {
+      showgrid: false,
+      range: [-100, -50],
+      tickmode: 'linear',
+      tick0: -100,
+      dtick: 10,
+    },
+    width: 700,
+    height: 300,
+    hovermode: false,
+    dragmode: false,
   };
 
-  constructor() {}
+  public data: Plotly.Data[] = [
+    {
+      x: [0],
+      y: [0],
+      type: 'scattergl',
+      mode: 'lines',
+      line: {
+        color: 'blue',
+        width: 1,
+      },
+      hoverinfo: 'none',
+    },
+  ];
+
+  public config: Partial<Plotly.Config> = {
+    staticPlot: false,
+    responsive: false,
+    displayModeBar: false,
+    displaylogo: false,
+  };
+  public interval: any;
+
+  public data$: any = this.websocketService.messages$.pipe(
+    map((data: any) => data),
+    catchError((error) => {
+      throw error;
+    }),
+    tap({
+      error: (error: any) => console.log('Error:', error),
+      complete: () => console.log('Connection Closed'),
+    })
+  );
+
+  constructor(private websocketService: WebsocketService, private ngZone: NgZone) {}
 
   ngOnInit(): void {}
 
@@ -49,56 +93,24 @@ export class PureChartComponent implements OnInit, AfterViewInit {
     this.initPlot();
   }
 
-  connect() {
-    this.simulateRealtime();
-  }
-  private initPlot() {
-    // this.getTheme();
-
-    // the layout.
-    const layout: Partial<Plotly.Layout> = {
-      autosize: false,
-      showlegend: false,
-      title: 'SkymonNG',
-      xaxis: { zeroline: true, showline: true, showgrid: false, range: [0, 610] },
-      yaxis: { showgrid: false, range: [-100, -50] },
-      width: 700,
-      height: 300,
-      hovermode: false,
-      dragmode: 'pan',
-    };
-
-    const trace1 = {
-      x: [0],
-      y: [0],
-      type: 'scattergl',
-      mode: 'lines',
-      line: {
-        // color: 'rgb(55, 128, 191)',
-        width: 1,
-      },
-      hoverinfo: 'none',
-    };
-
-    // the data
-    const data = [trace1] as any;
-
-    // the config
-    const config: Partial<Plotly.Config> = {
-      staticPlot: false,
-      responsive: false,
-      displayModeBar: false,
-      displaylogo: false,
-    };
-
-    Plotly.newPlot(this.chartEl.nativeElement, data, layout, config);
+  connect(): void {
+    // this.simulateRealtime();
+    this.renderChart();
   }
 
-  private negativeRandomNumber(m: number, n: number) {
+  close(): void {
+    console.log('close');
+    this.websocketService.close();
+  }
+  private initPlot(): void {
+    Plotly.newPlot(this.chartEl.nativeElement, this.data, this.layout, this.config);
+  }
+
+  private negativeRandomNumber(m: number, n: number): number {
     return Math.floor(Math.random() * (n - m + 1)) + m;
   }
 
-  private generateNegativeRandomNumbersArray(from: number, to: number) {
+  private generateNegativeRandomNumbersArray(from: number, to: number): number[] {
     const arrayLength = 10000;
     const newArray = [];
 
@@ -114,79 +126,78 @@ export class PureChartComponent implements OnInit, AfterViewInit {
   public simulateRealtime(): void {
     console.log('chart', this.chartEl.nativeElement);
     const chartEl = this.chartEl.nativeElement;
-    setInterval(() => {
-      const array = this.generateNegativeRandomNumbersArray(-80, -70);
-      const max_array = this.generateNegativeRandomNumbersArray(-60, -50);
-      const min_array = this.generateNegativeRandomNumbersArray(-100, -90);
-      const data: Plotly.Data[] = [
-        {
-          y: array,
-          name: 'PSD',
-          type: 'scattergl',
-          mode: 'lines',
-          line: {
-            // color: 'rgb(55, 128, 191)',
-            width: 1,
-            simplify: true,
-          },
-          hoverinfo: 'none',
-        },
-        {
-          y: max_array,
-          // xaxis: 'x',
-          name: 'Max',
-          type: 'scattergl',
-          mode: 'lines',
-          line: {
-            // color: 'rgb(55, 128, 191)',
-            width: 1,
-            simplify: true,
-          },
-          hoverinfo: 'none',
-        },
-        {
-          y: min_array,
-          // xaxis: 'x',
-          name: 'Min',
-          type: 'scattergl',
-          mode: 'lines',
-          line: {
-            // color: 'rgb(55, 128, 191)',
-            width: 1,
-            simplify: true,
-          },
-          hoverinfo: 'none',
-        },
-      ];
-      const data_update: Data = {
-        y: [array],
-        type: 'scattergl',
-        mode: 'lines',
-      };
+    const xarray = this.generateNegativeRandomNumbersArray(-80, -70).map((x, i) => i);
+    const objArray = this.generateNegativeRandomNumbersArray(-80, -70).map((value, index) => {
+      return { x: index, y: value };
+    });
+    const points: ISimplifyObjectPoint[] = objArray;
+    const tolerance = 0.5;
+    const highQuality = true;
 
-      const layout: Partial<Plotly.Layout> = {
-        autosize: false,
-        showlegend: false,
-        title: 'SkymonNG',
-        xaxis: { zeroline: true, showline: true, showgrid: false, range: [0, 610] },
-        yaxis: { showgrid: false, range: [-100, -50] },
-        width: 700,
-        height: 300,
-        hovermode: false,
-        dragmode: 'pan',
-        // grid: { rows: 3, columns: 1 },
-      };
+    const simplified_result = Simplify(points, tolerance, highQuality);
+    const simplifyx = simplified_result.map((v) => v.x);
+    const simplifyy = simplified_result.map((v) => v.y);
+    this.ngZone.runOutsideAngular(() => {
+      this.interval = window.setInterval(() => {
+        const array = this.generateNegativeRandomNumbersArray(-80, -70);
+        const max_array = this.generateNegativeRandomNumbersArray(-60, -50);
+        const min_array = this.generateNegativeRandomNumbersArray(-100, -90);
 
-      const config: Partial<Plotly.Config> = {
-        staticPlot: false,
-        responsive: false,
-        displayModeBar: false,
-        displaylogo: false,
-      };
-      // Plotly.update(chartEl, data_update, layout);
-      Plotly.react(chartEl, data, layout, config);
-      // Plotly.restyle(chartEl, data_update);
-      /* this.chartEl = Plotly.newPlot(
+        // console.log('simplify', array, simplified_result);
+
+        const data: Plotly.Data[] = [
+          {
+            x: simplifyx,
+            y: array,
+            name: 'PSD',
+            type: 'scattergl',
+            mode: 'lines',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'none',
+          },
+          {
+            x: simplifyx,
+            y: max_array,
+            // xaxis: 'x',
+            name: 'Max',
+            type: 'scattergl',
+            mode: 'lines',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'none',
+          },
+          {
+            x: simplifyx,
+            y: min_array,
+            // xaxis: 'x',
+            name: 'Min',
+            type: 'scattergl',
+            mode: 'lines',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'none',
+          },
+        ];
+        // const data_update: Data = {
+        //   y: [array],
+        //   type: 'scattergl',
+        //   mode: 'lines',
+        // };
+
+        // Plotly.update(chartEl, data_update, layout);
+        Plotly.react(chartEl, data, this.layout, this.config);
+        // Plotly.restyle(chartEl, data_update);
+        /* this.chartEl = Plotly.newPlot(
         chartEl,
         [data],
         {
@@ -219,6 +230,72 @@ export class PureChartComponent implements OnInit, AfterViewInit {
           scrollZoom: true,
         }
       ); */
-    }, 200);
+      }, 200);
+    });
+  }
+
+  public renderChart(): void {
+    this.websocketService.connect({ reconnect: false }, this.deviceId.value);
+    const chartEl = this.chartEl.nativeElement;
+
+    this.data$.pipe(untilDestroyed(this)).subscribe(
+      (response: IMeasurement) => {
+        // console.log('RESPONSE --> ', response);
+
+        if (response) {
+          const data: Plotly.Data[] = [
+            {
+              y: response.PSD_MEAS,
+              name: 'PSD',
+              type: 'scattergl',
+              mode: 'lines',
+              line: {
+                color: 'blue',
+                width: 1,
+                simplify: true,
+              },
+              hoverinfo: 'none',
+            },
+            {
+              y: response.MAX_MEAS,
+              // xaxis: 'x',
+              name: 'Max',
+              type: 'scattergl',
+              mode: 'lines',
+              line: {
+                color: 'green',
+                width: 1,
+                simplify: true,
+              },
+              hoverinfo: 'none',
+            },
+            {
+              y: response.MIN_MEAS,
+              // xaxis: 'x',
+              name: 'Min',
+              type: 'scattergl',
+              mode: 'lines',
+              line: {
+                color: 'red',
+                width: 1,
+                simplify: true,
+              },
+              hoverinfo: 'none',
+            },
+          ];
+          Plotly.react(chartEl, data, this.layout, this.config);
+        }
+      },
+      (error: any) => {
+        console.log('error', error);
+      },
+      () => {
+        console.log('observable is now completed.');
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.interval);
   }
 }

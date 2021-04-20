@@ -81,7 +81,7 @@ export class WebsocketService {
     return webSocket({
       url: `${WS_ENDPOINT}${deviceId}`,
       // serializer: (msg: any) => JSON.stringify({ data: 'x,y', msg: { ...msg } }),
-      //  deserializer: ({data}) => data  }
+      // deserializer: ({ data }) => data,
       openObserver: {
         next: () => {
           console.log('[WebsocketService]: connection ok');
