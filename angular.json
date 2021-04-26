@@ -35,6 +35,10 @@
             ],
             "scripts": [
               //   "node_modules/plotly.js-dist/plotly.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "d3fc",
+              "simplify-ts"
             ]
           },
           "configurations": {

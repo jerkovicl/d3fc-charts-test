@@ -1,8 +1,23 @@
-<div id="chartEl" #chartEl style="width: 700px; height: 300px"></div>
-<input type="text" [formControl]="deviceId" />
-<button (click)="connect()">Connect</button>
-<button (click)="close()">Close</button>
+<div fxLayout="row">
+  <div fxFlex="50%">
+    <div id="chartEl" #chartEl style="width: 600px; height: 300px"></div>
+    <input type="text" [formControl]="deviceId" />
+    <button (click)="connect()">Connect</button>
+    <button (click)="close()">Close</button>
+    <button (click)="addMinChart()">Add Min</button>
+    <button (click)="removeChart()">Remove</button>
+    <button (click)="addMarkers()">Add Markers</button>
+    <button [hidden]="false" (click)="simulateRealtime()">Simulate</button>
+  </div>
 
-<button [hidden]="false" (click)="simulateRealtime()">Simulate</button>
-
-<app-streaming-chart></app-streaming-chart>
+  <div fxFlex="50%">
+    <div id="chartEl2" #chartEl2 style="width: 600px; height: 300px"></div>
+    <button [hidden]="false" (click)="simulateRealtime2()">Simulate</button>
+  </div>
+</div>
+<div fxLayout="row">
+  <div fxFlex="100%">
+    <div id="chartEl3" #chartEl3 style="width: 600px; height: 300px"></div>
+    <button [hidden]="false" (click)="simulateRealtime3()">Simulate</button>
+  </div>
+</div>

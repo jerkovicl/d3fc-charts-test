@@ -24,17 +24,25 @@ import { IMeasurement } from '../chart/measurement.model';
 export class PureChartComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartEl')
   chartEl!: any;
+
+  @ViewChild('chartEl2')
+  chartEl2!: any;
+
+  @ViewChild('chartEl3')
+  chartEl3!: any;
+
   public deviceId = new FormControl('fes01:Sat-01');
 
   public layout: Partial<Plotly.Layout> = {
     autosize: false,
     showlegend: false,
-    title: 'SkymonNG',
+    // title: 'SkymonNG',
     xaxis: {
       zeroline: true,
       showline: true,
       showgrid: false,
       range: [0, 610],
+      // rangeslider: { range: [0, 610] },
       tickmode: 'linear',
       tick0: 0,
       dtick: 50,
@@ -42,14 +50,16 @@ export class PureChartComponent implements OnInit, AfterViewInit, OnDestroy {
     yaxis: {
       showgrid: false,
       range: [-100, -50],
+      // rangeslider: { range: [-100, -50] },
       tickmode: 'linear',
       tick0: -100,
       dtick: 10,
     },
-    width: 700,
+    width: 600,
     height: 300,
-    hovermode: false,
+    hovermode: 'closest',
     dragmode: false,
+    margin: { t: 40, b: 40, r: 20, l: 20 },
   };
 
   public data: Plotly.Data[] = [
@@ -57,7 +67,7 @@ export class PureChartComponent implements OnInit, AfterViewInit, OnDestroy {
       x: [0],
       y: [0],
       type: 'scattergl',
-      mode: 'lines',
+      mode: 'lines+markers',
       line: {
         color: 'blue',
         width: 1,
@@ -104,6 +114,8 @@ export class PureChartComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   private initPlot(): void {
     Plotly.newPlot(this.chartEl.nativeElement, this.data, this.layout, this.config);
+    Plotly.newPlot(this.chartEl2.nativeElement, this.data, this.layout, this.config);
+    Plotly.newPlot(this.chartEl3.nativeElement, this.data, this.layout, this.config);
   }
 
   private negativeRandomNumber(m: number, n: number): number {
@@ -111,7 +123,7 @@ export class PureChartComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private generateNegativeRandomNumbersArray(from: number, to: number): number[] {
-    const arrayLength = 10000;
+    const arrayLength = 1000;
     const newArray = [];
 
     for (let i = 0; i < arrayLength; i++) {
@@ -126,6 +138,7 @@ export class PureChartComponent implements OnInit, AfterViewInit, OnDestroy {
   public simulateRealtime(): void {
     console.log('chart', this.chartEl.nativeElement);
     const chartEl = this.chartEl.nativeElement;
+
     const xarray = this.generateNegativeRandomNumbersArray(-80, -70).map((x, i) => i);
     const objArray = this.generateNegativeRandomNumbersArray(-80, -70).map((value, index) => {
       return { x: index, y: value };
@@ -234,68 +247,248 @@ export class PureChartComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  public simulateRealtime2(): void {
+    console.log('chart', this.chartEl2.nativeElement);
+    const chartEl = this.chartEl2.nativeElement;
+
+    const xarray = this.generateNegativeRandomNumbersArray(-80, -70).map((x, i) => i);
+    const objArray = this.generateNegativeRandomNumbersArray(-80, -70).map((value, index) => {
+      return { x: index, y: value };
+    });
+    const points: ISimplifyObjectPoint[] = objArray;
+    const tolerance = 0.5;
+    const highQuality = true;
+
+    const simplified_result = Simplify(points, tolerance, highQuality);
+    const simplifyx = simplified_result.map((v) => v.x);
+    const simplifyy = simplified_result.map((v) => v.y);
+    this.ngZone.runOutsideAngular(() => {
+      this.interval = window.setInterval(() => {
+        const array = this.generateNegativeRandomNumbersArray(-80, -70);
+        const max_array = this.generateNegativeRandomNumbersArray(-60, -50);
+        const min_array = this.generateNegativeRandomNumbersArray(-100, -90);
+
+        // console.log('simplify', array, simplified_result);
+
+        const data: Plotly.Data[] = [
+          {
+            x: simplifyx,
+            y: array,
+            name: 'PSD',
+            type: 'scatter',
+            mode: 'lines',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'none',
+          },
+          {
+            x: simplifyx,
+            y: max_array,
+            // xaxis: 'x',
+            name: 'Max',
+            type: 'scatter',
+            mode: 'lines',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'none',
+          },
+          {
+            x: simplifyx,
+            y: min_array,
+            // xaxis: 'x',
+            name: 'Min',
+            type: 'scatter',
+            mode: 'lines',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'none',
+          },
+        ];
+
+        Plotly.react(chartEl, data, this.layout, this.config);
+      }, 200);
+    });
+  }
+
+  public simulateRealtime3(): void {
+    console.log('chart', this.chartEl3.nativeElement);
+    const chartEl = this.chartEl3.nativeElement;
+
+    const xarray = this.generateNegativeRandomNumbersArray(-80, -70).map((x, i) => i);
+    const objArray = this.generateNegativeRandomNumbersArray(-80, -70).map((value, index) => {
+      return { x: index, y: value };
+    });
+    const points: ISimplifyObjectPoint[] = objArray;
+    const tolerance = 0.5;
+    const highQuality = true;
+
+    const simplified_result = Simplify(points, tolerance, highQuality);
+    const simplifyx = simplified_result.map((v) => v.x);
+    const simplifyy = simplified_result.map((v) => v.y);
+    this.ngZone.runOutsideAngular(() => {
+      this.interval = window.setInterval(() => {
+        const array = this.generateNegativeRandomNumbersArray(-80, -70);
+        const max_array = this.generateNegativeRandomNumbersArray(-60, -50);
+        const min_array = this.generateNegativeRandomNumbersArray(-100, -90);
+
+        // console.log('simplify', array, simplified_result);
+
+        const data: Plotly.Data[] = [
+          {
+            x: simplifyx,
+            y: array,
+            // name: 'PSD',
+            type: 'scattergl',
+            mode: 'lines+markers',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'y',
+          },
+          {
+            x: simplifyx,
+            y: max_array,
+            // xaxis: 'x',
+            // name: 'Max',
+            type: 'scattergl',
+            mode: 'lines+markers',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'y',
+          },
+          {
+            x: simplifyx,
+            y: min_array,
+            // xaxis: 'x',
+            // name: 'Min',
+            type: 'scattergl',
+            mode: 'lines+markers',
+            line: {
+              // color: 'rgb(55, 128, 191)',
+              width: 1,
+              simplify: true,
+            },
+            hoverinfo: 'y+text',
+          },
+        ];
+
+        Plotly.react(chartEl, data, this.layout, this.config);
+      }, 200);
+    });
+  }
   public renderChart(): void {
     this.websocketService.connect({ reconnect: false }, this.deviceId.value);
     const chartEl = this.chartEl.nativeElement;
+    const chartEl2 = this.chartEl2.nativeElement;
+    const chartEl3 = this.chartEl3.nativeElement;
+    this.ngZone.runOutsideAngular(() => {
+      this.data$.pipe(untilDestroyed(this)).subscribe(
+        (response: IMeasurement) => {
+          // console.log('RESPONSE --> ', response);
 
-    this.data$.pipe(untilDestroyed(this)).subscribe(
-      (response: IMeasurement) => {
-        // console.log('RESPONSE --> ', response);
-
-        if (response) {
-          const data: Plotly.Data[] = [
-            {
-              y: response.PSD_MEAS,
-              name: 'PSD',
-              type: 'scattergl',
-              mode: 'lines',
-              line: {
-                color: 'blue',
-                width: 1,
-                simplify: true,
+          if (response) {
+            const data: Plotly.Data[] = [
+              {
+                y: response.PSD_MEAS,
+                name: 'PSD',
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                  color: 'blue',
+                  width: 1,
+                  simplify: true,
+                },
+                hoverinfo: 'none',
               },
-              hoverinfo: 'none',
-            },
-            {
-              y: response.MAX_MEAS,
-              // xaxis: 'x',
-              name: 'Max',
-              type: 'scattergl',
-              mode: 'lines',
-              line: {
-                color: 'green',
-                width: 1,
-                simplify: true,
+              {
+                y: response.MAX_MEAS,
+                // xaxis: 'x',
+                name: 'Max',
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                  color: 'green',
+                  width: 1,
+                  simplify: true,
+                },
+                hoverinfo: 'none',
               },
-              hoverinfo: 'none',
-            },
-            {
-              y: response.MIN_MEAS,
-              // xaxis: 'x',
-              name: 'Min',
-              type: 'scattergl',
-              mode: 'lines',
-              line: {
-                color: 'red',
-                width: 1,
-                simplify: true,
+              {
+                y: response.MIN_MEAS,
+                // xaxis: 'x',
+                name: 'Min',
+                type: 'scatter',
+                mode: 'lines',
+                line: {
+                  color: 'red',
+                  width: 1,
+                  simplify: true,
+                },
+                hoverinfo: 'none',
               },
-              hoverinfo: 'none',
-            },
-          ];
-          Plotly.react(chartEl, data, this.layout, this.config);
+            ];
+            Plotly.react(chartEl, data, this.layout, this.config);
+            Plotly.react(chartEl2, data, this.layout, this.config);
+            Plotly.react(chartEl3, data, this.layout, this.config);
+          }
+        },
+        (error: any) => {
+          console.log('error', error);
+        },
+        () => {
+          console.log('observable is now completed.');
         }
-      },
-      (error: any) => {
-        console.log('error', error);
-      },
-      () => {
-        console.log('observable is now completed.');
-      }
-    );
+      );
+    });
   }
 
-  ngOnDestroy() {
+  public addMinChart(): void {
+    const chartEl = this.chartEl.nativeElement;
+    Plotly.addTraces(chartEl, {
+      y: [-75, -79, -78, -72, -80, -71, -75, -79, -78, -72, -80, -71, -75, -79, -78, -72, -80, -71],
+      name: 'Min',
+      type: 'scatter',
+      mode: 'lines',
+      line: {
+        color: 'red',
+        width: 1,
+      },
+      hoverinfo: 'none',
+    });
+  }
+
+  public addMarkers(): void {
+    const chartEl = this.chartEl.nativeElement;
+    Plotly.addTraces(chartEl, {
+      y: [-78, -72, -80, -71, -80, -71, -80, -71],
+      text: 'Min',
+      type: 'scatter',
+      mode: 'text+markers',
+      marker: { size: 15, color: 'rgb(0,255,0)' },
+      hoverinfo: 'y+text',
+    });
+  }
+
+  public removeChart(): void {
+    const chartEl = this.chartEl.nativeElement;
+    Plotly.deleteTraces(chartEl, [-1]);
+  }
+
+  ngOnDestroy(): void {
     clearInterval(this.interval);
   }
 }
